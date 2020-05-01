@@ -1,0 +1,15 @@
+# Default ignored files
+
+/mysql-data/*
+
+# composer
+/composer.phar
+/vendor
+
+# IDEs
+/.idea
+*.iml
+*~
+
+# System files
+.DS_Store

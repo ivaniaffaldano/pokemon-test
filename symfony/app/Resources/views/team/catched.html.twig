@@ -1,0 +1,32 @@
+{% extends 'team/base.html.twig' %}
+
+{% block body %} 
+    
+    <h1>Team {{ team.name }}</h1>
+
+    <br/><br/>You catched...<br/><br/>
+    
+    <h2>{{ pokemon.name }}</h2>
+    <img src="{{ pokemon.sprite }}" /><br/><br/>
+    Base experience: {{ pokemon.exp }}<br/><br/>
+    Abilities:<br/>
+    <ul>
+        {% for a in pokemon.getAbility() %}
+            <li>{{ a.name }}</li>
+        {% endfor %}
+    </ul>
+    <br/><br/>
+    Types:<br/>
+    <ul>
+        {% for t in pokemon.getType() %}
+            <li>{{ t.name }}</li>
+        {% endfor %}
+    </ul>
+    <br/><br/>
+
+
+    <a href="/team/catch/{{ team.id }}">GOTTA CATCH 'EM ALL!</a> (ANOTHER ONE)
+
+{% endblock %}
+
+
