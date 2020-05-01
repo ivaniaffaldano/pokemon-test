@@ -1,8 +1,22 @@
 {% extends 'team/base.html.twig' %}
 
 {% block body %}
+
+    {% if is_filtered %}
+        <a href="/team/list">BACK TO LIST PAGE</a><br/><br/>
+    {% endif %}
     
-    <h1>LIST</h1>
+    <h1>Team List</h1>
+
+    {% for team in teams %}
+        <h2><a href="/team/edit/{{ team['id'] }}">{{ team['id'] }}.{{ team['name'] }}</a> (Total exp: {{team['pokemon']|sum}})</h2>
+        {% for pokemon in team['pokemon'] %}
+            <h3>{{ pokemon['name'] }}</h3><img src="{{ pokemon['sprite'] }}" />
+            {% for type in pokemon['type'] %}
+                <a href="/team/filter/{{ type['id'] }}">{{ type['name'] }}</a>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
 
 {% endblock %}
 

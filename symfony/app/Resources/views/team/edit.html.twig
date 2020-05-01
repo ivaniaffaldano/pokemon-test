@@ -1,8 +1,21 @@
 {% extends 'team/base.html.twig' %}
 
-{% block body %}
+{% block body %} 
     
-    EDIT
+    <h1>Team ID: {{ team.id }}</h1>
+
+    {{ form(form) }} <br/><br/>
+
+    {% for pokemon in team.getPokemon() %}
+        <h3>{{ pokemon.getName() }}</h3><img src="{{ pokemon.getSprite() }}" />
+        {% for type in pokemon.getType() %}
+            <a href="/team/filter/{{ type.getId()}}">{{ type.getName() }}</a>
+        {% endfor %}
+    {% endfor %}
+
+    <br/><br/><br/>
+
+    <a href="/team/catch/{{ team.id }}">GOTTA CATCH 'EM ALL!</a>
 
 {% endblock %}
 

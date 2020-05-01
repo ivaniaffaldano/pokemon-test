@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y \
     libyaml-dev \
     libxml2-dev \
     libicu-dev \
-    libicu57 \
     libxslt-dev \
     git \
     default-jre

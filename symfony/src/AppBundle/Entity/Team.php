@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Team
  *
  * @ORM\Table(name="team")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TeamRepository")
  */
 class Team
 {
@@ -60,6 +60,16 @@ class Team
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Get pokemon
+     *
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getPokemon()
+    {
+        return $this->pokemon;
     }
 
 

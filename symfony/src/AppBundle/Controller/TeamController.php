@@ -10,6 +10,7 @@ use AppBundle\Entity\Team;
 use AppBundle\Entity\Pokemon;
 use AppBundle\Entity\Ability;
 use AppBundle\Entity\Type;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class TeamController extends Controller
 {
@@ -42,15 +43,60 @@ class TeamController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($team);
             $em->flush();
+            $cachedItem = $this->get('cache.app')->deleteItem('team_list');
         }else{
             die('Error');
         }
 
         return $this->render('team/details.html.twig', [
-                'name' => $team->getName(), 
-                'id' => $team->getId()
+                'team' => $team
             ]
         );
+    }
+
+    /**
+     * Matches /team/edit/*
+     *
+     * @Route("/team/edit/{id}", name="team_edit_get", methods={"GET"})
+     */
+    public function editGetAction(int $id)
+    {
+        $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
+        $form = $this->createForm(TeamType::class, $team, ['action' => $this->generateUrl('team_edit_post',['id' => $id]),'method' => 'POST',]);
+        if(!$team){die('Error');}
+        return $this->render('team/edit.html.twig', [
+            'team' => $team, 'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * Matches /team/edit/*
+     *
+     * @Route("/team/edit/{id}", name="team_edit_post", methods={"POST"})
+     */
+    public function editPostAction(int $id, Request $request)
+    {
+        $team = $this->getDoctrine()->getRepository(Team::class)->find($id);
+        if(!$team){die('Error');}
+        $form = $this->createForm(TeamType::class, $team);
+        $form->handleRequest($request);
+        if ($form->isValid() && $form->isSubmitted()) {
+            $values = $form->getData();
+            $team->setName($values->getName());
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($team);
+            $em->flush();
+            $this->get('cache.app')->deleteItem('team_list');
+            foreach($team->getPokemon() as $pokemon){
+                foreach($pokemon->getType() as $type){
+                    $this->get('cache.app')->deleteItem('team_list_'.$type->getId());
+                }
+            }
+        }
+        $form = $this->createForm(TeamType::class, $team, ['action' => $this->generateUrl('team_edit_post',['id' => $id]),'method' => 'POST',]);
+        return $this->render('team/edit.html.twig', [
+            'team' => $team, 'form' => $form->createView()
+        ]);
     }
 
     /**
@@ -79,19 +125,37 @@ class TeamController extends Controller
      *
      * @Route("/team/list", name="team_list")
      */
-    public function listAction(Request $request)
+    public function listAction(SerializerInterface $serializer)
     {
-        return $this->render('team/list.html.twig', []);
+        $cacheKey = 'team_list';
+        $cachedItem = $this->get('cache.app')->getItem($cacheKey);
+        if (false === $cachedItem->isHit()) {
+            $teams = $this->getDoctrine()->getRepository(Team::class)->findBy(array(), array('id' => 'DESC'));
+            $cachedItem->set($serializer->serialize($teams,'json'), $cacheKey);
+            $this->get('cache.app')->save($cachedItem);
+        }
+        $cachedItem = $this->get('cache.app')->getItem($cacheKey);
+        $teams = json_decode($cachedItem->get(),true);
+        return $this->render('team/list.html.twig', ['teams' => $teams,'is_filtered' => false]);
     }
 
     /**
-     * Matches /team/edit/*
+     * Matches /team/filter/*
      *
-     * @Route("/team/edit/{id}", name="team_edit")
+     * @Route("/team/filter/{id}", name="team_filter")
      */
-    public function editAction(int $id)
+    public function filterAction(SerializerInterface $serializer, int $id)
     {
-        return $this->render('team/edit.html.twig', []);
+        $cacheKey = 'team_list_'.$id;
+        $cachedItem = $this->get('cache.app')->getItem($cacheKey);
+        if (false === $cachedItem->isHit()) {
+            $teams = $this->getDoctrine()->getRepository(Team::class)->findTeamByPokemonType($id);
+            $cachedItem->set($serializer->serialize($teams,'json'), $cacheKey);
+            $this->get('cache.app')->save($cachedItem);
+        }
+        $cachedItem = $this->get('cache.app')->getItem($cacheKey);
+        $teams = json_decode($cachedItem->get(),true);
+        return $this->render('team/list.html.twig', ['teams' => $teams,'is_filtered' => true]);
     }
 
     protected function getRandomPokemon(){
@@ -128,6 +192,7 @@ class TeamController extends Controller
             $this->setTypes($types,$pokemon,$entityManager);
             $entityManager->persist($pokemon);
             $entityManager->flush();
+            $cachedItem = $this->get('cache.app')->deleteItem('team_list');
         }
         return $pokemon;
     }
@@ -154,6 +219,7 @@ class TeamController extends Controller
             }
             $pokemon->addType($type);
             $entityManager->persist($type);
+            $this->get('cache.app')->deleteItem('team_list_'.$type->getId());
             $entityManager->persist($pokemon);
         }
     }

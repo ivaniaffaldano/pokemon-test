@@ -10,4 +10,21 @@ namespace AppBundle\Repository;
  */
 class TeamRepository extends \Doctrine\ORM\EntityRepository
 {
+
+    public function findTeamByPokemonType(int $id){
+
+        $query = $this->getEntityManager()
+            ->createQuery(
+                'SELECT t, p, tt 
+                FROM AppBundle:Team t
+                JOIN t.pokemon p
+                JOIN p.type tt 
+                WHERE tt.id = :id 
+                ORDER BY t.id DESC'
+        )->setParameter('id', $id);
+
+        return $query->getResult();
+
+    }
+
 }

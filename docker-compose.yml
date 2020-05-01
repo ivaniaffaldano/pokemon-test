@@ -2,7 +2,11 @@
 
 version: "3.2"
 services:
-
+    redis:
+      container_name: snce-docker-redis
+      image: redis:latest
+      ports:
+        - "6379"
     mysql:
       image: mysql:5.7
       container_name: snce-docker-mysql
@@ -40,6 +44,8 @@ services:
       working_dir: /application
       environment:
         SYMFONY_ENV: ${SYMFONY_ENV}
+        REDIS_HOST: ${REDIS_HOST}
+        REDIS_PORT: ${REDIS_PORT}
         XDEBUG: ${XDEBUG}
         XDEBUG_HOST: ${XDEBUG_HOST}
         PHP_TIMEZONE: ${PHP_TIMEZONE}
@@ -51,3 +57,4 @@ services:
 
       links:
         - mysql
+        - redis
