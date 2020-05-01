@@ -1,7 +1,7 @@
 Based from https://github.com/SnceGroup/snce-docker repo, with some customizations
 
 HOW TO START UP PROJECT FOR THE FIRST TIME: 
-LAUNCH THIS COMMANDS INSIDE MAIN FOLDER:
+LAUNCH THESE COMMANDS INSIDE MAIN FOLDER:
 docker-compose up -d
 docker exec -it snce-docker-php-fpm bash
 cd symfony 
