@@ -1,0 +1,14 @@
+# This file is auto-generated during the composer install
+parameters:
+    database_host: mysql
+    database_port: 3306
+    database_name: pokemon
+    database_user: root
+    database_password: root
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
+    secret: 164056ece849ff40058128f054e96ab5f7598582
+    redis.host: '%env(REDIS_HOST)%'
+    redis.port: '%env(REDIS_PORT)%'
